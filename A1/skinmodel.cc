@@ -57,6 +57,10 @@ void SkinModel::train(const cv::Mat3b& img, const cv::Mat1b& mask)
 
 
     using namespace cv;
+
+    //for ( int i = 1; i < 3; i = i + 2 )
+     //  GaussianBlur( img, img, Size( i, i ), 0, 0 );
+
     cv::cvtColor(img, img, CV_BGR2HSV);
 
 
@@ -110,6 +114,11 @@ void SkinModel::finishTraining()
 
 cv::Mat1b SkinModel::classify(const cv::Mat3b& img)
 {
+
+using  namespace cv;
+//for ( int i = 1; i < 3; i = i + 2 )
+   //GaussianBlur( img, img, Size( i, i ), 0, 0 );
+
     cv::Mat1b skin = cv::Mat1b::zeros(img.rows, img.cols);
 
 	//--- IMPLEMENT THIS ---//
@@ -133,7 +142,6 @@ cv::Mat1b SkinModel::classify(const cv::Mat3b& img)
     }
 
 
-    using  namespace cv;
     cv::Mat3b imgCopy;
     img.copyTo(imgCopy);
     cv::cvtColor(img, img, CV_BGR2HSV);
@@ -141,16 +149,21 @@ cv::Mat1b SkinModel::classify(const cv::Mat3b& img)
     for (int x = 0; x < img.rows; x++)
         for (int y = 0; y < img.cols; y++)
         {
-            double p_x_skin = (skinPixels * 1.0/(skinPixels + nonskinPixels)) * (skinhist[img(x, y)[0]/binsize][img(x, y)[1]/binsize] * 1.0/skinPixels);
-            double p_x_nonskin = (nonskinPixels * 1.0/(skinPixels + nonskinPixels)) * (nonskinhist[img(x, y)[0]/binsize][img(x, y)[1]/binsize] * 1.0/nonskinPixels);
-            skin(x, y) = p_x_skin > p_x_nonskin? 255 : 0;
+            double p_skin = (skinPixels * 1.0/(skinPixels + nonskinPixels));
+            double p_nonskin = (nonskinPixels * 1.0/(skinPixels + nonskinPixels));
+            double p_xSkin = (skinhist[img(x, y)[0]/binsize][img(x, y)[1]/binsize] * 1.0/skinPixels);
+            double p_xNonSkin = (nonskinhist[img(x, y)[0]/binsize][img(x, y)[1]/binsize] * 1.0/nonskinPixels);
+            double p_x_skin =  p_skin * p_xSkin;
+            double p_x_nonskin = p_nonskin * p_xNonSkin;
+            //skin(x, y) = p_x_skin > p_x_nonskin? 255 : 0;
+            skin(x, y) = p_xSkin > p_xNonSkin? 255 : 0;
         }
 
 
     cv::Mat1b skinCopy;
     skin.copyTo(skinCopy);
 
-    int k = 3;
+    int k = 10;
 
 
     for (int row = 0; row < img.rows; ++row) {
@@ -181,6 +194,7 @@ cv::Mat1b SkinModel::classify(const cv::Mat3b& img)
                 }
         }
     }
+
 
 
 
