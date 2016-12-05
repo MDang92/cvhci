@@ -4,15 +4,16 @@
 #include <map>
 #include <algorithm>
 #include <set>
+#include <opencv2/opencv.hpp>
 
 using namespace std;
 
-int thres;
-int prevThres;
-double prevDist;
-bool colors[25][25];
-double rate;
-
+int skinPixels;
+int nonskinPixels ;\
+const int binsize=1;
+int skinhist[256/binsize][256/binsize];
+int nonskinhist[256/binsize][256/binsize];
+int ind ;
 /// Constructor
 SkinModel::SkinModel()
 {
@@ -30,7 +31,15 @@ SkinModel::~SkinModel()
 void SkinModel::startTraining()
 {
     //--- IMPLEMENT THIS ---//
-
+    skinPixels = 0;
+    nonskinPixels = 0;
+    ind = 0;
+    for (int i = 0; i < 255; i++)
+        for (int j = 0; j < 255; j++)
+        {
+            skinhist[i/binsize][j/binsize] =0;
+            nonskinhist[i/binsize][j/binsize] =0;
+        }
 
 
 }
@@ -49,46 +58,22 @@ void SkinModel::train(const cv::Mat3b& img, const cv::Mat1b& mask)
 
     using namespace cv;
     cv::cvtColor(img, img, CV_BGR2HSV);
-    normalize(img, img, 0.0, 255.0, NORM_MINMAX);
 
-    int hist[25][25] ={{0}};
 
-    int skinPixels = 0;
     for (int x = 0; x < mask.rows; x++)
         for (int y = 0; y < mask.cols; y++)
         {
-            if (mask(x, y) > 127)
+            if (mask(x, y) > 250)
             {
-                hist[img(x, y)[0]/10][img(x, y)[1]/10] ++;
+                skinhist[img(x, y)[0]/binsize][img(x, y)[1]/binsize] ++;
                 skinPixels++;
             }
+            else
+            {
+                nonskinhist[img(x, y)[0]/binsize][img(x, y)[1]/binsize] ++;
+                nonskinPixels++;
+            }
         }
-
-    double TP = 0;
-    double FN = 0;
-    double TN = 0;
-    double FP = 0;
-    int T = 0;
-    int N = 0;
-    std::map<int, pair<int, int>, std::greater<int> > l;
-    for (int x = 0; x < 25; x++)
-        for (int y = 0; y < 25; y++)
-        {
-            l[hist[x][y]] = make_pair(x, y);
-        }
-
-
-    for (auto it=l.begin(); it!=l.end(); ++it)
-    {
-        if (TP * 4.5 < skinPixels)
-        {
-            TP += it->first;
-            colors[it->second.first][ it->second.second] = true;
-        }
-    }
-
-
-
 
 }
 /// Finish the training.  This finalizes the model.  Do not call
@@ -98,6 +83,18 @@ void SkinModel::train(const cv::Mat3b& img, const cv::Mat1b& mask)
 /// e.g normalize w.r.t. the number of training images etc.
 void SkinModel::finishTraining()
 {
+    printf("%d %d\n", skinPixels, nonskinPixels);
+
+    /*
+    for (int i = 0; i < 255; i+=binsize)
+    {
+        for (int j = 0; j < 255; j+=binsize)
+        {
+            printf("%d ", skinhist[i/binsize][j/binsize]);
+        }
+        printf("\n");
+    }
+    */
 
 }
 
@@ -107,6 +104,10 @@ void SkinModel::finishTraining()
 ///
 /// @param img: unknown test image
 /// @return:    probability mask of skin color likelihood
+///
+///
+///
+
 cv::Mat1b SkinModel::classify(const cv::Mat3b& img)
 {
     cv::Mat1b skin = cv::Mat1b::zeros(img.rows, img.cols);
@@ -131,59 +132,20 @@ cv::Mat1b SkinModel::classify(const cv::Mat3b& img)
         }
     }
 
-    /*
-    cv::Mat1b skinCopy;
-    skin.copyTo(skinCopy);
 
-    int k = 3;
-
-
-    for (int row = 0; row < img.rows; ++row) {
-        for (int col = 0; col < img.cols; ++col) {
-            skinCopy(row, col) = skin(row, col);
-            for (int i = -k/2; i < k/2; i++)
-                for (int j = -k/2; j < k/2; j++)
-                {
-                    if (0 <= row + i && row + i < img.rows && 0 <= col + j && col + j < img.cols)
-                    {
-                        skinCopy(row, col) = min(skinCopy(row, col), skin(row+i, col+j));
-                    }
-                }
-        }
-    }
-
-
-    for (int row = 0; row < img.rows; ++row) {
-        for (int col = 0; col < img.cols; ++col) {
-            skin(row, col) = skinCopy(row, col);
-            for (int i = -k/2; i < k/2; i++)
-                for (int j = -k/2; j < k/2; j++)
-                {
-                    if (0 <= row + i && row + i < img.rows && 0 <= col + j && col + j < img.cols)
-                    {
-                        skin(row, col) = max(skin(row, col), skinCopy(row+i, col+j));
-                    }
-                }
-        }
-    }
-
-
-*/
     using  namespace cv;
+    cv::Mat3b imgCopy;
+    img.copyTo(imgCopy);
     cv::cvtColor(img, img, CV_BGR2HSV);
-    normalize(img, img, 0.0, 255.0, NORM_MINMAX);
-    int hist[25][25] ={{0}};
 
     for (int x = 0; x < img.rows; x++)
         for (int y = 0; y < img.cols; y++)
         {
-            if (colors[img(x, y)[0]/10][img(x, y)[1]/10])
-            {
-                skin(x, y) = 255;
-            }
-            else
-                skin(x, y) = 0;
+            double p_x_skin = (skinPixels * 1.0/(skinPixels + nonskinPixels)) * (skinhist[img(x, y)[0]/binsize][img(x, y)[1]/binsize] * 1.0/skinPixels);
+            double p_x_nonskin = (nonskinPixels * 1.0/(skinPixels + nonskinPixels)) * (nonskinhist[img(x, y)[0]/binsize][img(x, y)[1]/binsize] * 1.0/nonskinPixels);
+            skin(x, y) = p_x_skin > p_x_nonskin? 255 : 0;
         }
+
 
     cv::Mat1b skinCopy;
     skin.copyTo(skinCopy);
@@ -221,6 +183,13 @@ cv::Mat1b SkinModel::classify(const cv::Mat3b& img)
     }
 
 
+
+
+
+    std::string s = "testpics/pic" + std::to_string(ind) + ".jpg";
+
+    cv::imwrite(s, skin );
+    ind++;
     return skin;
 }
 
