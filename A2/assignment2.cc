@@ -67,24 +67,27 @@ int main(int argc, char* argv[]) {
 
     } 
     
+    int a, b;
+    a = b = 1;// a mod 48, b mod 112;
+
 
 	random_shuffle(trainImgs.begin(), trainImgs.end());
 	random_shuffle(testImgs.begin(), testImgs.end());
 
     /// create person classification model instance
-    HOG model;
-
+    HOG model(12, 16);
+    cout << "a: " << a << ", b: " << b << "," << endl;
     /// train model with all images in the train folder
-	cout << "Start Training" << endl;
+    //cout << "Start Training" << endl;
 	model.startTraining();
 	
 	for (auto &f:trainImgs) {
-		cout << "Training on Image " << path+"/train/"+"np"[f.second]+"/"+f.first << endl;
+        //cout << "Training on Image " << path+"/train/"+"np"[f.second]+"/"+f.first << endl;
 		cv::Mat3b img = cv::imread(path+"/train/"+"np"[f.second]+"/"+f.first,-1);
 		model.train( img, f.second );
 	}
 	
-	cout << "Finish Training" << endl;
+    //cout << "Finish Training" << endl;
 	model.finishTraining();
 	
     /// test model with all images in the test folder, 
@@ -93,13 +96,13 @@ int main(int argc, char* argv[]) {
 		cv::Mat3b img = cv::imread(path+"/test/"+"np"[f.second]+"/"+f.first,-1);
 		double hyp = model.classify(img);
 		roc.add(f.second, hyp);
-		cout << "Testing Image " << f.second << " " << hyp << " " << path+"/test/"+"np"[f.second]+"/"+f.first << endl;
+        //cout << "Testing Image " << f.second << " " << hyp << " " << path+"/test/"+"np"[f.second]+"/"+f.first << endl;
 	}
 	
 	/// After testing, update statistics and show results
 	roc.update();
 	
-	cout << "Overall F1 score: " << roc.F1 << endl;
+    cout <<" F1 score: " << roc.F1 << endl;
 	
 	/// Display final result if desired
 	if (pom.count("gui")) {

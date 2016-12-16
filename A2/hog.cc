@@ -20,11 +20,18 @@ public:
 HOG::HOG()
 {
     using namespace cv;
-	pimpl = std::shared_ptr<HOGPimpl>(new HOGPimpl());
-    //pimpl->hog.winSize = Size(64, 128);
-    //pimpl->hog.L2HysThreshold = 0.25;
-    pimpl->hog.blockStride = Size(24, 28); // mod 48, 112
+    pimpl = std::shared_ptr<HOGPimpl>(new HOGPimpl());
+
 }
+
+HOG::HOG(int a, int b)
+{
+    using namespace cv;
+    pimpl = std::shared_ptr<HOGPimpl>(new HOGPimpl());
+    pimpl->hog.blockStride = Size(a, b); // mod 48=2^4*3, 112=2^6*7
+
+}
+
 
 /// Destructor
 HOG::~HOG() 
