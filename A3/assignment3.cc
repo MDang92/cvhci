@@ -47,14 +47,15 @@ int main(int argc, char* argv[]) {
 	
 	/// get image filenames
 	string path = pom["path"].as<string>();
+	int count  = 50;
 	vector<string> people;
 	{
 		namespace fs = boost::filesystem; 
 		for (fs::directory_iterator it(fs::path(path+"/")); it!=fs::directory_iterator(); it++) {
 			if (is_regular_file(*it) and it->path().filename().stem().string().back()=='1') {
 				string filename = it->path().filename().string();
-				
-				people.push_back(filename.substr(0,filename.size()-5));
+				if(count -- )
+					people.push_back(filename.substr(0,filename.size()-5));
 			}
 		}
     } 
