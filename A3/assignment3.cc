@@ -112,7 +112,7 @@ int main(int argc, char* argv[]) {
 	/// After testing, update statistics and show results
 	roc.update();
 	
-	cout << "Best EER score: " << roc.EER << endl;
+	cout << "Best EER score as on website (higher is better): " << 1.0 - roc.EER << endl;
 	
 	/// Display final result if desired
 	if (pom.count("gui")) {
