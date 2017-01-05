@@ -11,9 +11,15 @@ using namespace std;
 int skinPixels;
 int nonskinPixels;
 const int binsize = 1;
-int skinhist[256 / binsize][256 / binsize];
-int nonskinhist[256 / binsize][256 / binsize];
-int ind ;
+const int binsizeSkin = 1;
+const int binsizeNonskin = 1;
+int skinhist[256 / binsizeSkin][256 / binsizeSkin];
+int nonskinhist[256 / binsizeNonskin][256 / binsizeNonskin];
+//using  namespace cv;
+double probSkin[256 / binsizeSkin][256 / binsizeSkin];
+double probNonskin[256 / binsizeNonskin][256 / binsizeNonskin];
+int ind;
+
 /// Constructor
 SkinModel::SkinModel()
 {
@@ -34,14 +40,14 @@ void SkinModel::startTraining()
     skinPixels = 0;
     nonskinPixels = 0;
     ind = 0;
-    for (int i = 0; i < 255; i++)
+    for (int i = 0; i < 255; i++) //mögliche farbwerte
         for (int j = 0; j < 255; j++)
         {
-            skinhist[i / binsize][j / binsize] = 0;
-            nonskinhist[i / binsize][j / binsize] = 0;
+            skinhist[i / binsizeSkin][j / binsizeSkin] = 0;//histogramm mit 0 initialisieren
+            nonskinhist[i / binsizeNonskin][j / binsizeNonskin] = 0;
+            probSkin[i / binsizeNonskin] [j / binsizeNonskin] = 0.0;
+            probNonskin[i / binsizeNonskin] [j / binsizeNonskin] = 0.0;
         }
-
-
 }
 
 /// Add a new training image/mask pair.  The mask should
@@ -55,23 +61,24 @@ void SkinModel::train(const cv::Mat3b& img, const cv::Mat1b& mask)
 {
     //--- IMPLEMENT THIS ---//
 
-
+    //histogramm für skin
+    //histogramm für non skin
     using namespace cv;
 
     cv::cvtColor(img, img, CV_BGR2HSV);
 
-
+//maske vorher morphologisch bearbeiten
     for (int x = 0; x < mask.rows; x++)
         for (int y = 0; y < mask.cols; y++)
         {
             if (mask(x, y) > 250)
             {
-                skinhist[img(x, y)[0] / binsize][img(x, y)[1] / binsize] ++;
-                skinPixels++;
+                skinhist[img(x, y)[0] / binsizeSkin][img(x, y)[1] / binsizeSkin] ++; //nur H und S werte
+                skinPixels++; //counter
             }
             else
             {
-                nonskinhist[img(x, y)[0] / binsize][img(x, y)[1] / binsize] ++;
+                nonskinhist[img(x, y)[0] / binsizeNonskin][img(x, y)[1] / binsizeNonskin] ++;
                 nonskinPixels++;
             }
         }
@@ -111,9 +118,9 @@ cv::Mat1b SkinModel::classify(const cv::Mat3b& img)
     for (int x = 0; x < img.rows; x++)
         for (int y = 0; y < img.cols; y++)
         {
-            double p_xSkin = (skinhist[img(x, y)[0] / binsize][img(x, y)[1] / binsize] * 1.0 / skinPixels);
-            double p_xNonSkin = (nonskinhist[img(x, y)[0] / binsize][img(x, y)[1] / binsize] * 1.0 / nonskinPixels);
-            skin(x, y) = p_xSkin / (p_xSkin + p_xNonSkin) * 255;
+            double p_xSkin = (skinhist[img(x, y)[0] / binsizeSkin][img(x, y)[1] / binsizeSkin] * 1.0 / skinPixels);
+            double p_xNonSkin = (nonskinhist[img(x, y)[0] / binsizeNonskin][img(x, y)[1] / binsizeNonskin] * 1.0 / nonskinPixels);
+            skin(x, y) = p_xSkin / (p_xSkin + p_xNonSkin) * 256;
         }
 
 
