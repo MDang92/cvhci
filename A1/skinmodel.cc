@@ -45,7 +45,7 @@ void SkinModel::startTraining()
         {
             skinhist[i / binsizeSkin][j / binsizeSkin] = 0;//histogramm mit 0 initialisieren
             nonskinhist[i / binsizeNonskin][j / binsizeNonskin] = 0;
-            probSkin[i / binsizeNonskin] [j / binsizeNonskin] = 0.0;
+            probSkin[i / binsizeSkin] [j / binsizeSkin] = 0.0;
             probNonskin[i / binsizeNonskin] [j / binsizeNonskin] = 0.0;
         }
 }
@@ -92,6 +92,17 @@ void SkinModel::train(const cv::Mat3b& img, const cv::Mat1b& mask)
 void SkinModel::finishTraining()
 {
     printf("skinPixels: %d nonskinPixels%d\n", skinPixels, nonskinPixels);
+
+    for (int i = 0; i < 256; i++) {
+        for (int j = 0; j < 256; j++) {
+            probSkin[i / binsizeSkin] [j / binsizeSkin] += 1.0 * skinhist[i / binsizeSkin] [j / binsizeSkin] / skinPixels;
+            //skinhist[i / binsizeSkin] [j / binsizeSkin] = 0;
+            //skinPixels = 0;
+            probNonskin[i / binsizeNonskin] [j / binsizeNonskin] += 1.0 * nonskinhist[i / binsizeNonskin] [j / binsizeNonskin] / nonskinPixels;
+            //nonskinhist[i / binsizeNonskin] [j / binsizeNonskin] = 0;
+            //nonskinPixels = 0;
+        }
+    }
 }
 
 
@@ -118,8 +129,8 @@ cv::Mat1b SkinModel::classify(const cv::Mat3b& img)
     for (int x = 0; x < img.rows; x++)
         for (int y = 0; y < img.cols; y++)
         {
-            double p_xSkin = (skinhist[img(x, y)[0] / binsizeSkin][img(x, y)[1] / binsizeSkin] * 1.0 / skinPixels);
-            double p_xNonSkin = (nonskinhist[img(x, y)[0] / binsizeNonskin][img(x, y)[1] / binsizeNonskin] * 1.0 / nonskinPixels);
+            double p_xSkin = probSkin[img(x, y)[0]][img(x, y)[1]];
+            double p_xNonSkin = probNonskin[img(x, y)[0]][img(x, y)[1]];
             skin(x, y) = p_xSkin / (p_xSkin + p_xNonSkin) * 256;
         }
 
