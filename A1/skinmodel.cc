@@ -11,8 +11,8 @@ using namespace std;
 int skinPixels;
 int nonskinPixels;
 const int binsize = 1;
-const int binsizeSkin = 1;
-const int binsizeNonskin = 1;
+const int binsizeSkin = 2;
+const int binsizeNonskin =1;
 int skinhist[256 / binsizeSkin][256 / binsizeSkin];
 int nonskinhist[256 / binsizeNonskin][256 / binsizeNonskin];
 //using  namespace cv;
@@ -129,8 +129,8 @@ cv::Mat1b SkinModel::classify(const cv::Mat3b& img)
     for (int x = 0; x < img.rows; x++)
         for (int y = 0; y < img.cols; y++)
         {
-            double p_xSkin = probSkin[img(x, y)[0]][img(x, y)[1]];
-            double p_xNonSkin = probNonskin[img(x, y)[0]][img(x, y)[1]];
+            double p_xSkin = probSkin[img(x, y)[0] / binsizeSkin][img(x, y)[1] / binsizeSkin];
+            double p_xNonSkin = probNonskin[img(x, y)[0] / binsizeNonskin][img(x, y)[1] / binsizeNonskin];
             skin(x, y) = p_xSkin / (p_xSkin + p_xNonSkin) * 256;
         }
 
