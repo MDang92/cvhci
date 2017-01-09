@@ -18,7 +18,7 @@ int n_imgs;
 int ind;
 int total;
 cv::PCA pca_0, pca_1, pca_2;
-int numPrincipalComponents = 50;
+int numPrincipalComponents = 100;
 vector<int> mean_;
 int width;
 
@@ -61,7 +61,7 @@ cv::Mat preprocess(const cv::Mat3b& img1) {
 /// @param same: true if img1 and img2 belong to the same person
 
 void FACE::train(const cv::Mat3b& img1, const cv::Mat3b& img2, bool same) {
-    if (n_imgs >= 300)  // speed things up
+    if (n_imgs >= 200)  // speed things up
     {
         return;
     }
@@ -141,6 +141,6 @@ double FACE::verify(const cv::Mat3b& img1, const cv::Mat3b& img2) {
 
     // Cosine distance
     //return (1.0 + compress_a0.dot(compress_b0)/(cv::norm(compress_a0, cv::NORM_L2) * cv::norm(compress_b0, cv::NORM_L2)))/2.0;
-    return cv::norm(compress_a0 - compress_b0, cv::NORM_L2);
+    -return cv::norm(compress_a0 - compress_b0, cv::NORM_L2);
 }
 
