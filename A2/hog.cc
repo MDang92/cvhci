@@ -49,27 +49,13 @@ void HOG::startTraining()
 /// @param bool: value which specifies if img represents a person
 void HOG::train(const cv::Mat3b& img, bool isPerson)
 {
-	cv::Mat3b img2 = img(cv::Rect((img.cols-64)/2,(img.rows-128)/2,64,128));
+    cv::Mat3b img2 = img(cv::Rect((img.cols - 64) / 2, (img.rows - 128) / 2, 64, 128));
+    vector<float> vDescriptor;
+    pimpl->hog.compute(img2, vDescriptor);
+    cv::Mat1f descriptor(1, vDescriptor.size(), &vDescriptor[0]);
 
-    /*
-    if (writeout)
-    {
-        cv::imwrite("data/train/tmp/1.jpg", img2);
-    }
-    */
-	vector<float> vDescriptor;
-	pimpl->hog.compute(img2, vDescriptor);	
-    /*if (writeout)
-    {
-        cout << vDescriptor.size() << endl;
-        for (auto v : vDescriptor)
-            cout << v << " ";
-        cout << endl;
-    }*/
-    cv::Mat1f descriptor(1,vDescriptor.size(),&vDescriptor[0]);
-    
-	pimpl->descriptors.push_back(descriptor);
-	pimpl->responses.push_back(cv::Mat1f(1,1,float(isPerson)));
+    pimpl->descriptors.push_back(descriptor);
+    pimpl->responses.push_back(cv::Mat1f(1, 1, float(isPerson)));
 
 
     //writeout--;
