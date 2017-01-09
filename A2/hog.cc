@@ -22,7 +22,7 @@ HOG::HOG()
     using namespace cv;
     pimpl = std::shared_ptr<HOGPimpl>(new HOGPimpl());
     pimpl->hog.blockStride = Size(16, 28); // mod 48=2^4*3, 112=2^6*7
-    pimpl->hog.nbins = 20;
+    pimpl->hog.nbins = 9;
 }
 
 /// Destructor

@@ -29,3 +29,5 @@ Parameters: [docs](http://docs.opencv.org/3.0-beta/modules/ml/doc/support_vector
 * `cv::SVM::C_SVC`, `gamma=0.90`, `C=1`, `kernel_type = CvSVM::RBF`: 0.837291
 * `cv::SVM::C_SVC`, `gamma=1.10`, `C=1`, `kernel_type = CvSVM::RBF`: 0.827832
 * `cv::SVM::C_SVC`, `kernel_type = CvSVM::LINEAR`: 0.856889
+* `cv::SVM::C_SVC`, `kernel_type = CvSVM::LINEAR`, `bins=10`: 0.857143 (10.374s)
+* `cv::SVM::C_SVC`, `kernel_type = CvSVM::LINEAR`, `bins=9`: 0.857143 (9.52s)
