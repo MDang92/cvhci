@@ -21,8 +21,9 @@ HOG::HOG()
 {
     using namespace cv;
     pimpl = std::shared_ptr<HOGPimpl>(new HOGPimpl());
-    pimpl->hog.blockStride = Size(16, 28); // mod 48=2^4*3, 112=2^6*7
-    pimpl->hog.nbins = 9;
+    pimpl->hog.blockStride = Size(16, 14); // mod 48=2^4*3, 112=2^6*7
+    pimpl->hog.nbins = 20;
+    pimpl->hog.nlevels = 200;
 }
 
 /// Destructor
@@ -34,6 +35,13 @@ HOG::~HOG()
 void HOG::startTraining()
 {
 }
+
+/// Image preprocessing before training / prediction
+cv::Mat3b preprocess(const cv::Mat3b& img) {
+    cv::Mat3b img2 = img(cv::Rect((img.cols - 64) / 2, (img.rows - 128) / 2, 64, 128));
+    return img2;
+}
+
 //int writeout = 1;
 /// Add a new training image.
 ///
@@ -41,8 +49,7 @@ void HOG::startTraining()
 /// @param bool: value which specifies if img represents a person
 void HOG::train(const cv::Mat3b& img, bool isPerson)
 {
-    cv::Mat3b img2 = img(cv::Rect((img.cols - 64) / 2, (img.rows - 128) / 2, 64, 128));
-
+    cv::Mat3b img2 = preprocess(img);
     vector<float> vDescriptor;
     pimpl->hog.compute(img2, vDescriptor);
     cv::Mat1f descriptor(1, vDescriptor.size(), &vDescriptor[0]);
@@ -57,12 +64,14 @@ void HOG::finishTraining()
 {
     cv::SVMParams params;
     params.svm_type = cv::SVM::C_SVC;
-    params.nu = 0.5;
-    params.p = 0.3;
-    params.gamma = 0.3;
-    params.C = 100;
-    params.kernel_type = CvSVM::LINEAR;
-    params.term_crit   = cvTermCriteria(CV_TERMCRIT_ITER, 100, 1e-6);
+    params.kernel_type = cv::SVM::POLY;
+    params.nu = 0.5;  // NU_SVC / ONE_CLASS / NU_SVR
+    params.p = 0.3;  // EPS_SVR
+    params.gamma = 0.30;  // POLY / RBF / SIGMOID
+    params.coef0 = 2;  // POLY / SIGMOID
+    params.C = 10;  // C_SVC / EPS_SVR / NU_SVR
+    params.degree = 3;  // POLY
+    params.term_crit   = cvTermCriteria(CV_TERMCRIT_ITER, 2000, 1e-6);
     pimpl->svm.train( pimpl->descriptors, pimpl->responses, cv::Mat(), cv::Mat(), params );
 }
 
@@ -73,10 +82,7 @@ void HOG::finishTraining()
 /// @return:    probability of human likelihood
 double HOG::classify(const cv::Mat3b& img)
 {
-
-
-    cv::Mat3b img2 = img(cv::Rect((img.cols - 64) / 2, (img.rows - 128) / 2, 64, 128));
-
+    cv::Mat3b img2 = preprocess(img);
     vector<float> vDescriptor;
     pimpl->hog.compute(img2, vDescriptor);
     cv::Mat1f descriptor(1, vDescriptor.size(), &vDescriptor[0]);

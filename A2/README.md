@@ -5,7 +5,7 @@ See [nu vs epsilon](http://stats.stackexchange.com/a/167545/25741)
 
 ## SVM tests
 
-Parameters: [docs](http://docs.opencv.org/3.0-beta/modules/ml/doc/support_vector_machines.html#svm-params-params)
+Parameters: [docs](http://docs.opencv.org/2.4/modules/ml/doc/support_vector_machines.html#svm-params-params) (v3 is NOT on the server)
 
 * `cv::SVM::NU_SVR`, `nu=0.1`: 0.337434 online
 * `cv::SVM::NU_SVR`, `nu=0.5`: 0.337434 online
@@ -20,8 +20,20 @@ Parameters: [docs](http://docs.opencv.org/3.0-beta/modules/ml/doc/support_vector
 * `cv::SVM::C_SVC`, `gamma=0.15`, `C=1`, `kernel_type = CvSVM::RBF`: 0.891566
 * `cv::SVM::C_SVC`, `gamma=0.19`, `C=1`, `kernel_type = CvSVM::RBF`: 0.870796
 * `cv::SVM::C_SVC`, `gamma=0.20`, `C=1`, `kernel_type = CvSVM::RBF`: 0.899548
+* `cv::SVM::C_SVC`, `gamma=0.20`, `C=1`, `kernel_type = CvSVM::RBF`, `CV_TERMCRIT_ITER=500`: 0.95713
 * `cv::SVM::C_SVC`, `gamma=0.20`, `C=10`, `kernel_type = CvSVM::RBF`: 0.90383
 * `cv::SVM::C_SVC`, `gamma=0.20`, `C=100`, `kernel_type = CvSVM::RBF`: 0.90383
+* `cv::SVM::C_SVC`, `gamma=0.20`, `C=100`, `kernel_type = CvSVM::SIGMOID`, `CV_TERMCRIT_ITER=2000`: 0.342176
+* `cv::SVM::C_SVC`, `gamma=0.10`, `degree = 3`, `kernel_type = CvSVM::POLY`, `CV_TERMCRIT_ITER=2000`: 0.967798
+* `cv::SVM::C_SVC`, `gamma=0.18`, `degree = 3`, `kernel_type = CvSVM::POLY`, `CV_TERMCRIT_ITER=2000`: 0.967798
+* `cv::SVM::C_SVC`, `gamma=0.20`, `degree = 3`, `kernel_type = CvSVM::POLY`, `CV_TERMCRIT_ITER=2000`: 0.967798
+* `cv::SVM::C_SVC`, `gamma=0.30`, `degree = 3`, `kernel_type = CvSVM::POLY`, `CV_TERMCRIT_ITER=2000`: 0.967798
+* `cv::SVM::C_SVC`, `gamma=0.30`, `degree = 3`, `coef0 = 1`, `kernel_type = CvSVM::POLY`, `CV_TERMCRIT_ITER=2000`: 0.97302
+* `cv::SVM::C_SVC`, `gamma=0.30`, `degree = 3`, `coef0 = 2`, `kernel_type = CvSVM::POLY`, `CV_TERMCRIT_ITER=2000`: 0.974805
+* `cv::SVM::C_SVC`, `gamma=0.30`, `degree = 3`, `coef0 = 2.5`, `kernel_type = CvSVM::POLY`, `CV_TERMCRIT_ITER=2000`: 0.973958
+* `cv::SVM::C_SVC`, `gamma=0.30`, `degree = 3`, `coef0 = 3`, `kernel_type = CvSVM::POLY`, `CV_TERMCRIT_ITER=2000`: 0.973958
+* `cv::SVM::C_SVC`, `gamma=0.30`, `degree = 3`, `coef0 = 4`, `kernel_type = CvSVM::POLY`, `CV_TERMCRIT_ITER=2000`: 0.972222
+* `cv::SVM::C_SVC`, `gamma=0.20`, `degree = 4`, `kernel_type = CvSVM::POLY`, `CV_TERMCRIT_ITER=2000`: 0.965819
 * `cv::SVM::C_SVC`, `gamma=0.30`, `C=1`, `kernel_type = CvSVM::RBF`: 0.89578
 * `cv::SVM::C_SVC`, `gamma=0.30`, `C=100`, `kernel_type = CvSVM::RBF`: 0.90383
 * `cv::SVM::C_SVC`, `gamma=0.50`, `C=1`, `kernel_type = CvSVM::RBF`: 0.893274
