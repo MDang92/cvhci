@@ -12,10 +12,10 @@ int skinPixels;
 int nonskinPixels;
 const int binsize = 1;
 const int binsizeSkin = 2;
-const int binsizeNonskin =1;
+const int binsizeNonskin = 1;
 int skinhist[256 / binsizeSkin][256 / binsizeSkin];
 int nonskinhist[256 / binsizeNonskin][256 / binsizeNonskin];
-//using  namespace cv;
+
 double probSkin[256 / binsizeSkin][256 / binsizeSkin];
 double probNonskin[256 / binsizeNonskin][256 / binsizeNonskin];
 int ind;
@@ -31,19 +31,16 @@ SkinModel::~SkinModel()
 }
 
 /// Start the training.  This resets/initializes the model.
-///
-/// Implementation hint:
-/// Use this function to initialize/clear data structures used for training the skin model.
 void SkinModel::startTraining()
 {
-    //--- IMPLEMENT THIS ---//
     skinPixels = 0;
     nonskinPixels = 0;
     ind = 0;
-    for (int i = 0; i < 255; i++) //mögliche farbwerte
+    for (int i = 0; i < 255; i++) //mögliche Farbwerte
         for (int j = 0; j < 255; j++)
         {
-            skinhist[i / binsizeSkin][j / binsizeSkin] = 0;//histogramm mit 0 initialisieren
+            // Histogramm mit 0 initialisieren
+            skinhist[i / binsizeSkin][j / binsizeSkin] = 0;
             nonskinhist[i / binsizeNonskin][j / binsizeNonskin] = 0;
             probSkin[i / binsizeSkin] [j / binsizeSkin] = 0.0;
             probNonskin[i / binsizeNonskin] [j / binsizeNonskin] = 0.0;
@@ -59,15 +56,12 @@ void SkinModel::startTraining()
 
 void SkinModel::train(const cv::Mat3b& img, const cv::Mat1b& mask)
 {
-    //--- IMPLEMENT THIS ---//
-
-    //histogramm für skin
-    //histogramm für non skin
+    // Histogramm für skin und non skin füllen
     using namespace cv;
 
     cv::cvtColor(img, img, CV_BGR2HSV);
 
-//maske vorher morphologisch bearbeiten
+    // Maske vorher morphologisch bearbeiten
     for (int x = 0; x < mask.rows; x++)
         for (int y = 0; y < mask.cols; y++)
         {
@@ -84,6 +78,7 @@ void SkinModel::train(const cv::Mat3b& img, const cv::Mat1b& mask)
         }
 
 }
+
 /// Finish the training.  This finalizes the model.  Do not call
 /// train() afterwards anymore.
 ///
@@ -121,7 +116,6 @@ cv::Mat1b SkinModel::classify(const cv::Mat3b& img)
     using  namespace cv;
     cv::Mat1b skin = cv::Mat1b::zeros(img.rows, img.cols);
 
-    //--- IMPLEMENT THIS ---//
     cv::Mat3b imgCopy;
     img.copyTo(imgCopy);
     cv::cvtColor(img, img, CV_BGR2HSV);
