@@ -13,8 +13,6 @@ public:
     /// Constructor
     HOG();
 
-    HOG(int, int);
-
     /// Destructor
     ~HOG();
 

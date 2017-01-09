@@ -13,7 +13,6 @@
 #include <boost/filesystem.hpp>
 
 #include <fstream>
-#include <iostream>
 
 #include "hog.h"
 #include "ROC.h"
@@ -68,63 +67,40 @@ int main(int argc, char* argv[]) {
 
     } 
     
-    int a, b;
-    int bestA, bestB;
-    double bestScore = 0;
-    a = b = bestA = bestB =1;// a mod 48, b mod 112;
-    ROC<double> roc; //musste vorgezogen werden
 
-    ofstream myfile;
-    myfile.open ("example2.txt");
+	random_shuffle(trainImgs.begin(), trainImgs.end());
+	random_shuffle(testImgs.begin(), testImgs.end());
 
-    for (int iteration1 = 0; b < 113; b++) {
-        a = 1;
-    for (int iteration = 0; a < 49 ; a++) {
-        cout << "iteration " << iteration << endl;
+    /// create person classification model instance
+    HOG model;
 
-            random_shuffle(trainImgs.begin(), trainImgs.end());
-            random_shuffle(testImgs.begin(), testImgs.end());
-
-        /// create person classification model instance
-        HOG model(a, b);
-        cout << "a: " << a << ", b: " << b << "," << endl;
-        /// train model with all images in the train folder
-        //cout << "Start Training" << endl;
-            model.startTraining();
-
-            for (auto &f:trainImgs) {
-            //cout << "Training on Image " << path+"/train/"+"np"[f.second]+"/"+f.first << endl;
-                    cv::Mat3b img = cv::imread(path+"/train/"+"np"[f.second]+"/"+f.first,-1);
-                    model.train( img, f.second );
-            }
-
-        //cout << "Finish Training" << endl;
-            model.finishTraining();
-
-        /// test model with all images in the test folder,
-           // ROC<double> roc; //wurde vorgezogen
-            for (auto &f:testImgs) {
-                    cv::Mat3b img = cv::imread(path+"/test/"+"np"[f.second]+"/"+f.first,-1);
-                    double hyp = model.classify(img);
-                    roc.add(f.second, hyp);
-            //cout << "Testing Image " << f.second << " " << hyp << " " << path+"/test/"+"np"[f.second]+"/"+f.first << endl;
-            }
-
-            /// After testing, update statistics and show results
-            roc.update();
-        if (bestScore < roc.F1) {
-            bestScore = roc.F1;
-            bestA = a;
-            bestB = b;
-        }
-        cout <<" F1 score: " << roc.F1 << endl;
-        myfile << "a: " << a << ", b: " << b << "," << "F1 score: " << roc.F1 << "\n";
-    }
-    }
-    cout <<" best F1 score: " << bestScore << endl;
-    myfile << "best a: " << bestA << ", best b: " << bestB << "," << "best F1 score: " << bestScore << "\n";
-        myfile.close();
-
+    /// train model with all images in the train folder
+	cout << "Start Training" << endl;
+	model.startTraining();
+	
+	for (auto &f:trainImgs) {
+		cout << "Training on Image " << path+"/train/"+"np"[f.second]+"/"+f.first << endl;
+		cv::Mat3b img = cv::imread(path+"/train/"+"np"[f.second]+"/"+f.first,-1);
+		model.train( img, f.second );
+	}
+	
+	cout << "Finish Training" << endl;
+	model.finishTraining();
+	
+    /// test model with all images in the test folder, 
+	ROC<double> roc;
+	for (auto &f:testImgs) {
+		cv::Mat3b img = cv::imread(path+"/test/"+"np"[f.second]+"/"+f.first,-1);
+		double hyp = model.classify(img);
+		roc.add(f.second, hyp);
+		cout << "Testing Image " << f.second << " " << hyp << " " << path+"/test/"+"np"[f.second]+"/"+f.first << endl;
+	}
+	
+	/// After testing, update statistics and show results
+	roc.update();
+	
+	cout << "Overall F1 score: " << roc.F1 << endl;
+	
 	/// Display final result if desired
 	if (pom.count("gui")) {
 		cv::imshow("ROC", roc.draw());
