@@ -24,6 +24,7 @@ HOG::HOG()
     pimpl->hog.blockStride = Size(16, 14); // mod 48=2^4*3, 112=2^6*7
     pimpl->hog.nbins = 20;
     pimpl->hog.nlevels = 200;
+    pimpl->hog.winSigma = 30;
 }
 
 /// Destructor
