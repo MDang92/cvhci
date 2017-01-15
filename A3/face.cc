@@ -41,16 +41,18 @@ void FACE::startTraining() {
 /// Image preprocessing before training / prediction
 cv::Mat preprocess(const cv::Mat3b& img1) {
     // cv::blur(img1, img1, cv::Size(3, 3));
+    cv::Mat gray_image;
+    cv::cvtColor(img1, gray_image, CV_BGR2GRAY);
 
     // only take the face
     int r = img1.rows;
     int c = img1.cols;
-    float border = 1.0 / 10.0;
+    float border = 1.0 / 5.0;
     cv::Rect rect(r * border,
                   c * border,
                   r - 2 * r * border,
                   c - 2 * c * border);
-    cv::Mat imga = img1(rect).clone();
+    cv::Mat imga = gray_image(rect).clone();
     return imga.reshape(1, 1);
 }
 
@@ -100,13 +102,6 @@ void FACE::finishTraining() {
         db_0[i].reshape(1, total).copyTo(mat_0.col(i));
     }
     pca_0 = cv::PCA(mat_0, cv::Mat(), CV_PCA_DATA_AS_COL, numPrincipalComponents);
-
-    // Export computed mean , eigen vectors & eigen values Matrix
-    /*    cv::FileStorage fs("export.dat", cv::FileStorage::WRITE);
-        fs << "mean" << pca_0.mean;
-        fs << "eigenvectors" << pca_0.eigenvectors;
-        fs << "eigenvalues" << pca_0.eigenvalues;
-        fs.release();*/
 }
 
 
