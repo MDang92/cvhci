@@ -38,19 +38,18 @@ void HOG::startTraining()
 }
 
 /// Image preprocessing before training / prediction
-cv::Mat3b preprocess(const cv::Mat3b& img) {
-    cv::Mat3b img2 = img(cv::Rect((img.cols - 64) / 2, (img.rows - 128) / 2, 64, 128));
+cv::Mat preprocess(const cv::Mat3b& img) {
+    cv::Mat img2 = img(cv::Rect((img.cols - 64) / 2, (img.rows - 128) / 2, 64, 128));
     return img2;
 }
 
-//int writeout = 1;
 /// Add a new training image.
 ///
 /// @param img:  input image
 /// @param bool: value which specifies if img represents a person
 void HOG::train(const cv::Mat3b& img, bool isPerson)
 {
-    cv::Mat3b img2 = preprocess(img);
+    cv::Mat img2 = preprocess(img);
     vector<float> vDescriptor;
     pimpl->hog.compute(img2, vDescriptor);
     cv::Mat1f descriptor(1, vDescriptor.size(), &vDescriptor[0]);
@@ -83,7 +82,7 @@ void HOG::finishTraining()
 /// @return:    probability of human likelihood
 double HOG::classify(const cv::Mat3b& img)
 {
-    cv::Mat3b img2 = preprocess(img);
+    cv::Mat img2 = preprocess(img);
     vector<float> vDescriptor;
     pimpl->hog.compute(img2, vDescriptor);
     cv::Mat1f descriptor(1, vDescriptor.size(), &vDescriptor[0]);
