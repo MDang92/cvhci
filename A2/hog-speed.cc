@@ -23,7 +23,7 @@ HOG::HOG()
     pimpl = std::shared_ptr<HOGPimpl>(new HOGPimpl());
     pimpl->hog.blockStride = Size(16, 28); // mod 48=2^4*3, 112=2^6*7
     pimpl->hog.nbins = 9;
-    pimpl->hog.nlevels = 2;  // Has no influence?!?
+    pimpl->hog.nlevels = 1;  // Has no influence?!?
     pimpl->hog.winSigma = 15;
     pimpl->hog.gammaCorrection = false;
 }
@@ -44,7 +44,6 @@ cv::Mat preprocess(const cv::Mat3b& img) {
     return img2;
 }
 
-//int writeout = 1;
 /// Add a new training image.
 ///
 /// @param img:  input image
