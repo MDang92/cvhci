@@ -7,9 +7,13 @@ See [nu vs epsilon](http://stats.stackexchange.com/a/167545/25741)
 
 Parameters: [docs](http://docs.opencv.org/2.4/modules/ml/doc/support_vector_machines.html#svm-params-params) (v3 is NOT on the server)
 
-* `cv::SVM::NU_SVR`, `nu=0.1`: 0.337434 online
-* `cv::SVM::NU_SVR`, `nu=0.5`: 0.337434 online
-* `cv::SVM::NU_SVR`, `nu=0.5`, `kernel_type = CvSVM::RBF`: 0.337434 online
+* `cv::SVM::NU_SVR`, `nu=0.10`: 0.337434 online
+* `cv::SVM::NU_SVR`, `nu=0.25`, `C = 10`: 0.341099 online
+* `cv::SVM::NU_SVR`, `nu=0.50`, `C = 10`: 0.664657 online
+* `cv::SVM::NU_SVR`, `nu=0.50`, `C =  5`: 0.337434 online
+* `cv::SVM::NU_SVR`, `nu=0.75`, `C = 10`: 0.337434 online
+* `cv::SVM::NU_SVR`, `nu=0.50`: 0.337434 online
+* `cv::SVM::NU_SVR`, `nu=0.50`, `kernel_type = CvSVM::RBF`: 0.337434 online
 * `cv::SVM::EPS_SVR`, `p=0.0`, `kernel_type = CvSVM::RBF`: Command terminated by signal (6: SIGABRT)
 * `cv::SVM::EPS_SVR`, `p=0.2`, `kernel_type = CvSVM::RBF`: 0.337434 online
 * `cv::SVM::EPS_SVR`, `p=0.3`, `kernel_type = CvSVM::RBF`: 0.337434 online
@@ -41,5 +45,9 @@ Parameters: [docs](http://docs.opencv.org/2.4/modules/ml/doc/support_vector_mach
 * `cv::SVM::C_SVC`, `gamma=0.90`, `C=1`, `kernel_type = CvSVM::RBF`: 0.837291
 * `cv::SVM::C_SVC`, `gamma=1.10`, `C=1`, `kernel_type = CvSVM::RBF`: 0.827832
 * `cv::SVM::C_SVC`, `kernel_type = CvSVM::LINEAR`: 0.856889
+
+
+## Speed
+
 * `cv::SVM::C_SVC`, `kernel_type = CvSVM::LINEAR`, `bins=10`: 0.857143 (10.374s)
 * `cv::SVM::C_SVC`, `kernel_type = CvSVM::LINEAR`, `bins=9`: 0.857143 (9.52s)
