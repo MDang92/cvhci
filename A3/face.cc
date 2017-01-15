@@ -18,8 +18,9 @@ int n_imgs;
 int ind;
 int total;
 cv::PCA pca_0, pca_1, pca_2;
-int numPrincipalComponents = 100;
+int numPrincipalComponents = 150;
 vector<int> mean_;
+vector<int> std_;
 int width;
 
 /// Constructor
@@ -81,23 +82,35 @@ void FACE::train(const cv::Mat3b& img1, const cv::Mat3b& img2, bool same) {
 void FACE::finishTraining() {
     cv::Mat mat_0(total, n_imgs, CV_32FC1);
     mean_.reserve(total);
+    std_.reserve(total);
     width = db_0[0].rows;
 
     // Calculate mean
     for (unsigned int i = 0; i < db_0.size(); i++) {
         for (int j = 0; j < total; ++j)
         {
-            // Compute mean
             mean_[j] += double(db_0[i].at<uchar>(0, j)) / db_0.size();
         }
     }
 
+    // Calculate empirical standard deviation
+    for (unsigned int i = 0; i < db_0.size(); i++) {
+        for (int j = 0; j < total; ++j)
+        {
+            std_[j] += (double(db_0[i].at<uchar>(0, j)) - mean_[j]) * (double(db_0[i].at<uchar>(0, j)) - mean_[j]);
+        }
+    }
+    for (int j = 0; j < total; ++j)
+    {
+        std_[j] = cv::sqrt(std_[j] / (total - 1));
+    }
 
     // Subtract mean and add matrix for PCA
     for (unsigned int i = 0; i < db_0.size(); i++) {
         for (int j = 0; j < total; ++j)
         {
             db_0[i].at<uchar>(0, j) -= mean_[j];
+            // db_0[i].at<uchar>(0, j) /= std_[j];
         }
         db_0[i].reshape(1, total).copyTo(mat_0.col(i));
     }
@@ -124,7 +137,9 @@ double FACE::verify(const cv::Mat3b& img1, const cv::Mat3b& img2) {
     for (int j = 0; j < total; ++j)
     {
         img_flat_a.at<uchar>(0, j) -= mean_[j];
+        //img_flat_a.at<uchar>(0, j) /= std_[j];
         img_flat_b.at<uchar>(0, j) -= mean_[j];
+        //img_flat_b.at<uchar>(0, j) /= std_[j];
     }
 
     img_flat_a.reshape(1, total).copyTo(test_a0);
@@ -134,7 +149,7 @@ double FACE::verify(const cv::Mat3b& img1, const cv::Mat3b& img2) {
     pca_0.project(test_b0, compress_b0.col(0));
 
     // Cosine distance
-    //return compress_a0.dot(compress_b0) / (cv::norm(compress_a0, cv::NORM_L2) * cv::norm(compress_b0, cv::NORM_L2));
+    //return compress_a0.dot(compress_b0) / (cv::norm(compress_a0, cv::NORM_L2) * cv::norm(compress_b0, cv::NORM_L2))*256;
     return -cv::norm(compress_a0 - compress_b0, cv::NORM_L2);
 }
 
