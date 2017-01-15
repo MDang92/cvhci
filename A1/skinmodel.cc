@@ -87,6 +87,9 @@ void SkinModel::train(const cv::Mat3b& img, const cv::Mat1b& mask)
 void SkinModel::finishTraining()
 {
     printf("skinPixels: %d nonskinPixels%d\n", skinPixels, nonskinPixels);
+    double p_Skin = 1.0 * skinPixels / (skinPixels + nonskinPixels);
+    double p_NonSkin = 1.0 - p_Skin ;
+    printf("p_Skin: %f p_NonSkin %f \n", p_Skin, p_NonSkin);
 
     for (int i = 0; i < 256; i++) {
         for (int j = 0; j < 256; j++) {
@@ -125,7 +128,10 @@ cv::Mat1b SkinModel::classify(const cv::Mat3b& img)
         {
             double p_xSkin = probSkin[img(x, y)[0] / binsizeSkin][img(x, y)[1] / binsizeSkin];
             double p_xNonSkin = probNonskin[img(x, y)[0] / binsizeNonskin][img(x, y)[1] / binsizeNonskin];
-            skin(x, y) = p_xSkin / (p_xSkin + p_xNonSkin) * 256;
+            double p_Skin = 0.3; //1.0 * skinPixels / (skinPixels + nonskinPixels);
+            double p_NonSkin = 1.0 - p_Skin;
+            //skin(x, y) = p_xSkin / (p_xSkin + p_xNonSkin) * 256;
+            skin(x, y) = p_xSkin * p_Skin / (p_xSkin * p_Skin + p_xNonSkin * p_NonSkin) * 256;
         }
 
 
@@ -163,7 +169,7 @@ cv::Mat1b SkinModel::classify(const cv::Mat3b& img)
                 }
         }
     }
-    blur(skin, skin, Size(3, 3));
+    blur(skin, skin, Size(5, 5));
 
     std::string s = "testpics/pic" + std::to_string(ind) + ".jpg";
 
